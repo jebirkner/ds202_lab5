@@ -30,3 +30,11 @@ diabetes = diabetes %>%
 which(diabetes$frame == "")
 ```
 
+```{r}
+diabetes = droplevels(diabetes, exlude = levels(diabetes$frame==""))
+```
+
+```{r}
+levels(diabetes$frame)
+```
+
