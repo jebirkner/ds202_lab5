@@ -5,4 +5,28 @@ date: "11/5/2019"
 output: html_document
 ---
 
+###Owner’s GitHub username: jebirkner
+###Partner’s GitHub username: Mblount2
+###Repo Name: ds202_lab5
+
+```{r}
+library(tidyverse)
+```
+
+
+1.
+```{r}
+diabetes = read.table('diabetes.txt',header=TRUE)
+head(diabetes)
+```
+
+2.
+```{r}
+diabetes = diabetes %>% 
+  mutate(frame = replace(frame, frame == '', NA))
+```
+
+```{r}
+which(diabetes$frame == "")
+```
 
