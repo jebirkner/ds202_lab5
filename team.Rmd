@@ -38,3 +38,21 @@ diabetes = droplevels(diabetes, exlude = levels(diabetes$frame==""))
 levels(diabetes$frame)
 ```
 
+3.
+```{r}
+diabetes_reduced = diabetes %>% select(-c('id', 'bp.2s', 'bp.2d'))
+head(diabetes_reduced)
+```
+
+4.
+
+```{r}
+diabetes_clean = diabetes_reduced %>% drop_na()
+str(diabetes_clean)
+```
+
+5.
+```{r}
+sum(is.na(diabetes_clean)==TRUE)
+```
+
