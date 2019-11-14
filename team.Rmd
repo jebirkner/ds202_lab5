@@ -120,6 +120,11 @@ It seems that there may be a positive correlation between cholesterol and glycos
 
 10.
 ```{r}
-diabetes_clean %>% group_by(frame,location) %>% summarise (mean.glyhb_star= mean(glyhb_star))
+frame_mean = diabetes_clean %>% group_by(frame,location) %>% summarise (mean.glyhb_star= mean(glyhb_star))
+frame_mean
+```
+
+```{r}
+frame_mean %>% ggplot(aes(x = frame, y = mean.glyhb_star, color=location)) + geom_point()
 ```
 
