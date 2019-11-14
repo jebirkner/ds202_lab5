@@ -1,3 +1,4 @@
+
 ---
 title: "Lab 5"
 author: "Jaden Birkner"
@@ -54,5 +55,71 @@ str(diabetes_clean)
 5.
 ```{r}
 sum(is.na(diabetes_clean)==TRUE)
+```
+
+
+6.
+```{r}
+ggplot(diabetes_clean, aes(x=glyhb)) + geom_histogram(binwidth = 1)
+```
+
+```{r}
+ggplot(diabetes_clean, aes(x=log(glyhb))) + geom_histogram(binwidth = .25)
+```
+
+Potential Downside:
+
+7.
+```{r}
+diabetes_clean$glyhb_star = log(diabetes_clean$glyhb)
+
+ggplot(diabetes_clean, aes(x=glyhb_star)) + geom_histogram(binwidth = .25)
+```
+
+8.
+
+```{r}
+diabetes_clean$age_grouping <- cut(diabetes_clean$age, c(0,25,35,45,55,65,max(diabetes_clean$age)))
+```
+
+```{r}
+diabetes_clean %>% group_by(age_grouping) %>% summarise(mean.glyhb = mean(glyhb_star))
+```
+
+It seems that there may be a positive correlation between age and glycosolated hemoglobin.
+
+```{r}
+diabetes_clean$weight_grouping <- cut(diabetes_clean$weight, c(5))
+```
+
+```{r}
+diabetes_clean %>% group_by(weight_grouping) %>% summarise(mean.glyhb = mean(glyhb_star))
+```
+
+It seems that there may be a positive correlation between weight and glycosolated hemoglobin.
+
+```{r}
+diabetes_clean %>% group_by(gender) %>% summarise(mean.glyhb = mean(glyhb_star))
+```
+
+There does not seem to be a relationship between gender and glycosolated hemoglobin.
+
+```{r}
+diabetes_clean$waist_grouping <- cut(diabetes_clean$waist, c(5))
+diabetes_clean %>% group_by(waist_grouping) %>% summarise(mean.glyhb = mean(glyhb_star))
+```
+
+It seems that there may be a positive correlation between waist size and glycosolated hemoglobin.
+
+```{r}
+diabetes_clean$chol_grouping <- cut(diabetes_clean$chol, c(10))
+diabetes_clean %>% group_by(chol_grouping) %>% summarise(mean.glyhb = mean(glyhb_star))
+```
+
+It seems that there may be a positive correlation between cholesterol and glycosolated hemoglobin.
+
+10.
+```{r}
+diabetes_clean %>% group_by(frame,location) %>% summarise (mean.glyhb_star= mean(glyhb_star))
 ```
 
