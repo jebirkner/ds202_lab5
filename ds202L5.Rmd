@@ -1,0 +1,218 @@
+---
+title: "Lab 5"
+author: "Mikaela Blount"
+date: "11/14/2019"
+output: html_document
+---
+
+###Owner’s GitHub username: jebirkner
+###Partner’s GitHub username: Mblount2
+###Repo Name: ds202_lab5
+
+```{r}
+library(tidyverse)
+```
+
+
+1.
+```{r}
+diabetes = read.table('diabetes.txt',header=TRUE)
+head(diabetes)
+```
+
+2.
+```{r}
+diabetes = diabetes %>% 
+  mutate(frame = replace(frame, frame == '', NA))
+```
+
+```{r}
+which(diabetes$frame == "")
+```
+
+```{r}
+diabetes = droplevels(diabetes, exlude = levels(diabetes$frame==""))
+```
+
+```{r}
+levels(diabetes$frame)
+```
+
+3.
+```{r}
+diabetes_reduced = diabetes %>% select(-c('id', 'bp.2s', 'bp.2d'))
+head(diabetes_reduced)
+```
+
+4.
+
+```{r}
+diabetes_clean = diabetes_reduced %>% drop_na()
+str(diabetes_clean)
+```
+
+5.
+```{r}
+sum(is.na(diabetes_clean)==TRUE)
+```
+
+
+6.
+The way to deal with right-skewness to is to make a bloxplot with log of the count of glyhp. The biggest problem is that this hides the gaps in the data. 
+```{r}
+
+ggplot(data = diabetes_clean, aes(x = glyhb, y = log10(glyhb))) +
+geom_boxplot() +
+coord_flip()
+```
+
+```{r}
+ggplot(diabetes_clean, aes(x=log(glyhb))) + geom_histogram(binwidth = .25)
+```
+
+Potential Downside:
+
+7.
+```{r}
+diabetes_clean$glyhb_star = log(diabetes_clean$glyhb)
+ggplot(diabetes_clean, aes(x=glyhb_star)) + geom_histogram(binwidth = .25)
+```
+
+8.
+
+```{r}
+diabetes_clean$age_grouping <- cut(diabetes_clean$age, c(0,25,35,45,55,65,max(diabetes_clean$age)))
+```
+
+```{r}
+diabetes_clean %>% group_by(age_grouping) %>% summarise(mean.glyhb = mean(glyhb_star))
+```
+
+It seems that there may be a positive correlation between age and glycosolated hemoglobin.
+
+```{r}
+diabetes_clean$weight_grouping <- cut(diabetes_clean$weight, c(5))
+```
+
+```{r}
+diabetes_clean %>% group_by(weight_grouping) %>% summarise(mean.glyhb = mean(glyhb_star))
+```
+
+It seems that there may be a positive correlation between weight and glycosolated hemoglobin.
+
+```{r}
+diabetes_clean %>% group_by(gender) %>% summarise(mean.glyhb = mean(glyhb_star))
+```
+
+There does not seem to be a relationship between gender and glycosolated hemoglobin.
+
+```{r}
+diabetes_clean$waist_grouping <- cut(diabetes_clean$waist, c(5))
+diabetes_clean %>% group_by(waist_grouping) %>% summarise(mean.glyhb = mean(glyhb_star))
+```
+
+It seems that there may be a positive correlation between waist size and glycosolated hemoglobin.
+
+```{r}
+diabetes_clean$chol_grouping <- cut(diabetes_clean$chol, c(10))
+diabetes_clean %>% group_by(chol_grouping) %>% summarise(mean.glyhb = mean(glyhb_star))
+```
+
+It seems that there may be a positive correlation between cholesterol and glycosolated hemoglobin.
+
+11.
+Our main variable of interest is glyhb_star. We want to understand its relationship with ratio, bp.1s, age, gender, hip and weight. Further explore how these variables interact and visualize your findings.
+
+As ratio increases so does glyhb_star. The relationship between the variables might not be linear and might be unequal variance.
+```{r}
+ggplot(diabetes_clean,aes(y=glyhb_star,x=ratio)) + geom_point() 
+```
+
+There is not a clear relationship between glyhb_star and bp.1s and could potentially have a few outliers above 200 bp.1s.
+```{r}
+ggplot(diabetes_clean,aes(y=glyhb_star,x=bp.1s)) + geom_point() 
+```
+
+There is a weak, positive relationship between glyhb_star and age. There does seem to be a constant variance.
+```{r}
+ggplot(diabetes_clean,aes(y=glyhb_star,x=age)) + geom_point() 
+```
+
+There is a very small difference between the genders for glyhb_star but males tend to have slightly higher glyhb_star.
+```{r}
+ggplot(diabetes_clean,aes(y=glyhb_star,x=gender)) + geom_boxplot() 
+```
+
+There is a weak, positive relationship between glyhb_star and hip. There does not seem to be a constant variance.
+```{r}
+ggplot(diabetes_clean,aes(y=glyhb_star,x=hip)) + geom_point() 
+```
+
+There is a weak, positive relationship between glyhb_star and waist. There does not seem to be a constant variance.
+```{r}
+ggplot(diabetes_clean,aes(y=glyhb_star,x=waist)) + geom_point()
+```
+
+
+12.
+The first plot is coloring the points by weight group. The second plot represents the different weight groups by different shapes of points which is helpful for people who are colorblind. Both color and shape differentiation shows us that as weight increases, so does hip size for all three waist groups.
+```{r}
+ggplot(diabetes_clean,aes(y=hip,x=waist,alpha=0.5,color=weight_grouping)) + geom_point() + facet_wrap(~frame) 
+```
+
+
+```{r}
+ggplot(diabetes_clean,aes(y=hip,x=waist,alpha=0.5,shape=weight_grouping)) + geom_point() + facet_wrap(~frame)
+```
+
+13.
+The gather function in the most basic terms turns columns into rows; a dataset with 10 columns can be reduced down to 7 columns but will have more rows so the dataset does not lose any information. This function is only useful with 3 or more columns because the gather function will create two new columns (key,value) so anything less than two will not work.
+
+The spread function will turn rows into columns. This works when the key column is a catergorical and then spread will turn each unique value in the key column into a column which reduces the number of rows.
+
+14.
+At first glance, the gather and spread functions are exact complements because as gather reduces columns, spread increases the number of columns. The reason they are exact complements is that gather loses the original column type when used but spread does not.
+
+15.
+
+The adjusted R-squared is 0.557 indicating that 55.7% of the variation in data can be accounted for using the variables stab.glu, age, waist, ratio, and factor(frame) after taking into account the complexities of the model. With the F-statistic of 77.49 and p-value of approximately zero, the model is a significant predictor of glyhp_star.
+
+```{r}
+fit = lm(glyhb_star ~stab.glu + age + waist + ratio+ factor(frame),data=diabetes_clean)
+ summary(fit)
+```
+
+16.
+
+For every 1 unit increase in stab.glu, glyhb_star increases by 0.0035182 holding all other variables in the model constant.
+
+For every 1 unit increase in age, glyhb_star increases by 0.0033632 holding all other variables in the model constant.
+
+For every 1 unit increase in waist, glyhb_star increases by 0.0047925 holding all other variables in the model constant.
+
+For every 1 unit increase in ratio, glyhb_star increases by 0.0219341 holding all other variables in the model constant.
+
+Holding all other variables in the model constant, the intercept increases by 0.0309167 when the frame is medium.
+
+Holding all other variables in the model constant, the intercept increases by 0.0131840 when the frame is small.
+
+17.
+predicted(glyhb_star) = 0.8330897+ 0.0131840 + 0.0035182(90) + 0.0033632(35) + 0.0047925(30) + 0.0219341(5.1)
+
+The predicted glyhb_star is 1.53626261.
+
+18.
+Inference is using data to describe a population like seing how square footage affects the price of a house in a dataset. Prediction is using historical data to make future predictions like using historical housing data to predict what a future house will sell for.
+
+19.
+Linear regression's biggest advantages are the easy interpretation and less computation cost over k-NN regression. Linear regression has three big disadvantages over k-NN regression: assumes linearity, colinearity, and affects of outliers. 
+
+20.
+The most suprising thing about data science is the ease of web-scrapping. Before the lecture on web-scrapping, we both thought it was something that we would need a software engineering and computer science degree to be able to do but it takes just a few lines of code and some simple cleaning to be able to webscrap a lot of websites. The most challenging part of data science is there is not one single way to solve the problem. In most subjects, there is one way to take solve the problem but data science has countless ways with how to handle missing data. The most enjoyable part of data science is that I get to learn a new applied skill everytime we attend lecture. There is new techniques and new packages for data science being created at an unprecedent rate so there will always being new things to learn.
+
+
+
+
+
+
+
